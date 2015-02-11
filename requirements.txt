@@ -1,0 +1,5 @@
+GitPython==0.3.5
+coloredlogs==0.8
+docker-py==0.7.0
+tornado==4.0.2
+future
