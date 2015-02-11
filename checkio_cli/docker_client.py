@@ -105,17 +105,17 @@ class DockerClient():
 
 
 def start(mission, environment, path=None):
-    global docker
-    docker = DockerClient(mission, environment)
+    global docker_instance
+    docker_instance = DockerClient(mission, environment)
     if path:
-        docker.build_mission_image(path)
+        docker_instance.build_mission_image(path)
         logging.info('Image has build')
     logging.info('Run docker:')
-    docker.run()
+    docker_instance.run()
 
-    for line in docker.logs(stream=True, logs=True):
+    for line in docker_instance.logs(stream=True, logs=True):
         try:
             logging.info(line)
         except:
             pass
-docker = None
+docker_instance = None

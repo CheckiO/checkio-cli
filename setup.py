@@ -7,7 +7,7 @@ requirements = [l.strip() for l in open(join(source_directory, 'requirements.txt
 
 setup(
     name='checkio_cli',
-    version='0.0.3',
+    version='0.0.5',
     description='CheckiO common line interface for run and debug mission',
     author='CheckiO',
     author_email='igor@checkio.org',

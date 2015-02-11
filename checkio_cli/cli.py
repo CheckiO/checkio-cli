@@ -20,7 +20,6 @@ from threading import Thread
 from tornado.ioloop import IOLoop
 
 from checkio_cli import tcpserver, docker_client
-from checkio_cli.docker_client import docker
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +35,9 @@ def main():
     """The command line interface for the ``checkio`` program."""
     def exit_signal(sig, frame):
         logging.info("Trying exit")
-        docker.stop()
-        docker.remove_container()
+        if docker_client.docker_instance is not None:
+            docker_client.docker_instance.stop()
+            docker_client.docker_instance.remove_container()
         io_loop.add_callback(IOLoop.instance().stop)
 
     signal.signal(signal.SIGINT, exit_signal)
