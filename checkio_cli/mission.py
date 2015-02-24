@@ -8,6 +8,7 @@ from checkio_cli.exceptions import ConfigException
 class MissionFilesHandler(object):
 
     DIR_SOURCE = 'verification'
+    DIR_REFEREE_SRC = 'src'
 
     SCHEMA_FILENAME = 'schema'
 
@@ -15,6 +16,9 @@ class MissionFilesHandler(object):
     DOCKER_ENV_FILENAME = 'Dockerenv'
 
     RUNNER_FILENAME = 'run.sh'
+
+    ENV_SETTINGS_FILENAME = 'settings_env.py'
+    ENV_SETTINGS_TEMPLATE = "CURRENT_ENV = '{{env}}'"
 
     def __init__(self, env, path, tmp_dir):
         self.env = env
@@ -56,6 +60,13 @@ class MissionFilesHandler(object):
         runner_template = runner_template.replace('{{env}}', self.env)
         with open(self.filepath_destination_runner, 'w') as f:
             f.write(runner_template)
+
+    def make_env_settings(self):
+        env_settings = self.ENV_SETTINGS_TEMPLATE.replace('{{env}}', self.env)
+        env_settings_path = os.path.join(self.path_destination_source, self.DIR_REFEREE_SRC,
+                                         self.ENV_SETTINGS_FILENAME)
+        with open(env_settings_path, 'w') as f:
+            f.write(env_settings)
 
     def make_dockerfile(self):
         docker_template_file = os.path.join(self.path_destination_source,

@@ -75,6 +75,7 @@ class DockerClient():
             mission_source.pull_base()
             mission_source.copy_user_files()
             mission_source.make_env_runner()
+            mission_source.make_env_settings()
             mission_source.make_dockerfile()
             self._build(name_image=self.name_image, path=mission_source.path_destination_source)
         finally:

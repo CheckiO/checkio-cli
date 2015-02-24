@@ -85,6 +85,7 @@ class StreamReader(object):
             message = json_encode(message)
         try:
             self.stream.write("{}\n".format(message))
+            logging.info("[CONSOLE-SERVER] :: Data send: {}".format(message))
         except Exception as e:
             logging.error(e)
 
