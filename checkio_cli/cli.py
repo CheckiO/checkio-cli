@@ -9,6 +9,7 @@
 ==============================================================================
 """
 
+import os
 import signal
 import argparse
 import logging
@@ -22,20 +23,33 @@ from checkio_cli.docker import docker_client
 logger = logging.getLogger(__name__)
 
 
+def add_arguments_server(parser_server):
+    parser_server.add_argument('-i', '--input-file', help='Input file this data for task')
+
+
+def add_arguments_docker(parser_docker):
+    parser_docker.add_argument('-e', '--environment', help='Mission environment name')
+    parser_docker.add_argument('-p', '--path', help='Mission files path for build image', required=False)
+    parser_docker.add_argument('-m', '--mission', help='Mission name')
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Command line interface for CheckiO')
     parser.add_argument('-d', '--debug', help='Debug logging', action='store_true', default=False)
 
     subparsers = parser.add_subparsers()
     parser_server = subparsers.add_parser('server', help='Run TCPServer')
-    parser_server.add_argument('-i', '--input-file', help='Input file this data for task')
+    add_arguments_server(parser_server)
     parser_server.set_defaults(func=start_server)
 
     parser_docker = subparsers.add_parser('docker', help='Show information about user')
-    parser_docker.add_argument('-e', '--environment', help='Mission environment name')
-    parser_docker.add_argument('-p', '--path', help='Mission files path for build image', required=False)
-    parser_docker.add_argument('-m', '--mission', help='Mission name')
+    add_arguments_docker(parser_docker)
     parser_docker.set_defaults(func=run_docker)
+
+    parser_both = subparsers.add_parser('both', help='start both processes')
+    add_arguments_docker(parser_both)
+    add_arguments_server(parser_both)
+    parser_both.set_defaults(func=run_both)
 
     return parser.parse_args()
 
@@ -54,6 +68,13 @@ def start_server(options):
     io_loop = IOLoop.instance()
     tcpserver.start(options.input_file, io_loop)
     io_loop.start()
+
+
+def run_both(options):
+    if os.fork():
+        run_docker(options)
+    else:
+        start_server(options)
 
 
 def run_docker(options):
