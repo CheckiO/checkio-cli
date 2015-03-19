@@ -1,3 +1,4 @@
+import sys
 import logging
 import socket
 
@@ -10,10 +11,19 @@ MEM_LIMIT = '512m'
 CPU_SHARES = '512'  # Default 1014
 USER_CONNECTION_ID = 1
 DOCKER_ID = 2
+DOCKER_LINUX_IP = '172.17.42.1'
+
+
+def is_linux():
+    return 'linux' in sys.platform
 
 
 def get_docker_command():
-    local_ip = socket.gethostbyname(socket.gethostname())
+    if is_linux():
+        local_ip = DOCKER_LINUX_IP
+    else:
+        local_ip = socket.gethostbyname(socket.gethostname())
+
     command = "{} {} {} {}".format(local_ip, TCPConsoleServer.PORT, USER_CONNECTION_ID, DOCKER_ID)
     logging.debug("Docker args: {}".format(command))
     return command
