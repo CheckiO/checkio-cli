@@ -6,9 +6,9 @@
 
 """
 :py:mod:`checkio_console.cli` - Command line interface for CheckiO
+
 ==============================================================================
 """
-
 import os
 import signal
 import argparse
@@ -17,8 +17,8 @@ import coloredlogs
 
 from tornado.ioloop import IOLoop
 
+from checkio_cli import docker, native
 from checkio_cli.server import tcpserver
-from checkio_cli.docker import docker_client
 
 logger = logging.getLogger(__name__)
 
@@ -29,13 +29,20 @@ def add_arguments_server(parser_server):
 
 def add_arguments_docker(parser_docker):
     parser_docker.add_argument('-e', '--environment', help='Mission environment name')
-    parser_docker.add_argument('-p', '--path', help='Mission files path for build image', required=False)
+    parser_docker.add_argument('-p', '--path', help='Mission files path for build image',
+                               required=False)
     parser_docker.add_argument('-m', '--mission', help='Mission name')
+
+
+def add_arguments_native(parser_native):
+    parser_native.add_argument('-p', '--path', help='Mission files path for build image',
+                               required=False)
+    parser_native.add_argument('-d', '--destination-path', help='Destination path', required=False)
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Command line interface for CheckiO')
-    parser.add_argument('-d', '--debug', help='Debug logging', action='store_true', default=False)
+    parser.add_argument('--debug', help='Debug logging', action='store_true', default=False)
 
     subparsers = parser.add_subparsers()
     parser_server = subparsers.add_parser('server', help='Run TCPServer')
@@ -51,15 +58,19 @@ def parse_args():
     add_arguments_server(parser_both)
     parser_both.set_defaults(func=run_both)
 
+    parser_native = subparsers.add_parser('native', help='Run mission native without docker')
+    add_arguments_native(parser_native)
+    parser_native.set_defaults(func=run_native)
+
     return parser.parse_args()
 
 
 def start_server(options):
     def exit_signal(sig, frame):
         logging.info("Trying exit")
-        if docker_client.docker_container is not None:
-            docker_client.docker_container.stop()
-            docker_client.docker_container.remove_container()
+        if docker.docker_container is not None:
+            docker.docker_container.stop()
+            docker.docker_container.remove_container()
         io_loop.add_callback(IOLoop.instance().stop)
 
     signal.signal(signal.SIGINT, exit_signal)
@@ -78,7 +89,11 @@ def run_both(options):
 
 
 def run_docker(options):
-    docker_client.start(options.mission, options.environment, options.path)
+    docker.start(options.mission, options.environment, options.path)
+
+
+def run_native(options):
+    native.start(options.path, options.destination_path)
 
 
 def config_logging(options):
