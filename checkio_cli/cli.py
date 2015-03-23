@@ -19,6 +19,7 @@ from tornado.ioloop import IOLoop
 
 from checkio_cli.server import tcpserver
 from checkio_cli.docker import docker_client
+from checkio_cli.native import native_client
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +30,16 @@ def add_arguments_server(parser_server):
 
 def add_arguments_docker(parser_docker):
     parser_docker.add_argument('-e', '--environment', help='Mission environment name')
-    parser_docker.add_argument('-p', '--path', help='Mission files path for build image', required=False)
+    parser_docker.add_argument('-p', '--path', help='Mission files path for build image',
+                               required=False)
     parser_docker.add_argument('-m', '--mission', help='Mission name')
+
+
+def add_arguments_native(parser_native):
+    parser_native.add_argument('-e', '--environment', help='Mission environment name')
+    parser_native.add_argument('-p', '--path', help='Mission files path for build image',
+                               required=False)
+    parser_native.add_argument('-r', '--result', help='Result folder for checkout', default=None)
 
 
 def parse_args():
@@ -46,10 +55,19 @@ def parse_args():
     add_arguments_docker(parser_docker)
     parser_docker.set_defaults(func=run_docker)
 
-    parser_both = subparsers.add_parser('both', help='start both processes')
-    add_arguments_docker(parser_both)
-    add_arguments_server(parser_both)
-    parser_both.set_defaults(func=run_both)
+    parser_dserver = subparsers.add_parser('dserver', help='start docker and server')
+    add_arguments_docker(parser_dserver)
+    add_arguments_server(parser_dserver)
+    parser_dserver.set_defaults(func=run_dserver)
+
+    parser_native = subparsers.add_parser('native', help='Run referee without docker')
+    add_arguments_native(parser_native)
+    parser_native.set_defaults(func=run_native)
+
+    parser_dserver = subparsers.add_parser('nserver', help='start both processes')
+    add_arguments_native(parser_dserver)
+    add_arguments_server(parser_dserver)
+    parser_dserver.set_defaults(func=run_dserver)
 
     return parser.parse_args()
 
@@ -70,7 +88,7 @@ def start_server(options):
     io_loop.start()
 
 
-def run_both(options):
+def run_dserver(options):
     if os.fork():
         run_docker(options)
     else:
@@ -79,6 +97,10 @@ def run_both(options):
 
 def run_docker(options):
     docker_client.start(options.mission, options.environment, options.path)
+
+
+def run_native(options):
+    native_client.start(options.result, options.environment, options.path)
 
 
 def config_logging(options):
