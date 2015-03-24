@@ -29,16 +29,15 @@ def get_docker_command():
     return command
 
 
-def start(mission, environment, path=None):
-    global docker_container
+def start(mission, path=None):
     docker_client = DockerClient()
     if path:
-        docker_client.build_mission(mission, environment, path)
+        docker_client.build_mission(mission, path)
         logging.info('Image has build')
 
     logging.info('Run docker:')
     command = get_docker_command()
-    docker_container = docker_client.run(mission, environment, command)
+    docker_container = docker_client.run(mission, command)
 
     for line in docker_container.logs(stream=True, logs=True):
         try:
@@ -46,4 +45,3 @@ def start(mission, environment, path=None):
         except Exception as e:
             logging.error(e, exc_info=True)
             pass
-docker_container = None

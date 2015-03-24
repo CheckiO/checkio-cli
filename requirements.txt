@@ -1,6 +1,5 @@
 GitPython==0.3.5
 coloredlogs==0.8
-docker-py==0.7.0
 tornado==4.1
-checkio_docker==0.0.11
+checkio_docker==0.0.12
 future
