@@ -28,7 +28,6 @@ def add_arguments_server(parser_server):
 
 
 def add_arguments_docker(parser_docker):
-    parser_docker.add_argument('-e', '--environment', help='Mission environment name')
     parser_docker.add_argument('-m', '--mission', help='Mission name')
     parser_docker.add_argument('-p', '--path', help='Mission files path for build image',
                                required=False)
@@ -67,9 +66,6 @@ def parse_args():
 def start_server(options):
     def exit_signal(sig, frame):
         logging.info("Trying exit")
-        if docker.docker_container is not None:
-            docker.docker_container.stop()
-            docker.docker_container.remove_container()
         io_loop.add_callback(IOLoop.instance().stop)
 
     signal.signal(signal.SIGINT, exit_signal)
@@ -84,7 +80,7 @@ def run_docker(options):
     if options.input_file and os.fork():
         start_server(options)
     else:
-        docker.start(options.mission, options.environment, options.path)
+        docker.start(options.mission, options.path)
 
 
 def run_native(options):
