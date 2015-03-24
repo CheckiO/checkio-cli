@@ -7,12 +7,14 @@ from checkio_cli.server.tcpserver import TCPConsoleServer
 from checkio_docker.parser import MissionFilesCompiler
 
 DEFAULT_DIST = 'dist'
+DIST_SUB_FOLDER = 'checkio-mission'
 
 
 def start(path, destination_path):
     if not destination_path:
         destination_path = os.path.join(path, DEFAULT_DIST)
 
+    destination_path = os.path.join(destination_path, DIST_SUB_FOLDER)
     if os.path.exists(destination_path):
         shutil.rmtree(destination_path)
 

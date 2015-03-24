@@ -29,15 +29,19 @@ def add_arguments_server(parser_server):
 
 def add_arguments_docker(parser_docker):
     parser_docker.add_argument('-e', '--environment', help='Mission environment name')
+    parser_docker.add_argument('-m', '--mission', help='Mission name')
     parser_docker.add_argument('-p', '--path', help='Mission files path for build image',
                                required=False)
-    parser_docker.add_argument('-m', '--mission', help='Mission name')
+    parser_docker.add_argument('-i', '--input-file', help='Input file this data for task',
+                               required=False)
 
 
 def add_arguments_native(parser_native):
     parser_native.add_argument('-p', '--path', help='Mission files path for build image',
                                required=False)
     parser_native.add_argument('-d', '--destination-path', help='Destination path', required=False)
+    parser_native.add_argument('-i', '--input-file', help='Input file this data for task',
+                               required=False)
 
 
 def parse_args():
@@ -52,11 +56,6 @@ def parse_args():
     parser_docker = subparsers.add_parser('docker', help='Show information about user')
     add_arguments_docker(parser_docker)
     parser_docker.set_defaults(func=run_docker)
-
-    parser_both = subparsers.add_parser('both', help='start both processes')
-    add_arguments_docker(parser_both)
-    add_arguments_server(parser_both)
-    parser_both.set_defaults(func=run_both)
 
     parser_native = subparsers.add_parser('native', help='Run mission native without docker')
     add_arguments_native(parser_native)
@@ -81,19 +80,18 @@ def start_server(options):
     io_loop.start()
 
 
-def run_both(options):
-    if os.fork():
-        run_docker(options)
-    else:
-        start_server(options)
-
-
 def run_docker(options):
-    docker.start(options.mission, options.environment, options.path)
+    if options.input_file and os.fork():
+        start_server(options)
+    else:
+        docker.start(options.mission, options.environment, options.path)
 
 
 def run_native(options):
-    native.start(options.path, options.destination_path)
+    if options.input_file and os.fork():
+        start_server(options)
+    else:
+        native.start(options.path, options.destination_path)
 
 
 def config_logging(options):
