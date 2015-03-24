@@ -38,7 +38,7 @@ class ClientDataInterface(object):
         self._stream.write_select_result(result, request_id)
 
     def handler_stdout(self, line, request_id):
-        logging.info("checkio-cli server:: stderr: {}".format(line))
+        logging.info("checkio-cli server:: stdout: {}".format(line))
 
     def handler_stderr(self, line, request_id):
         logging.info("checkio-cli server:: stderr: {}".format(line))
@@ -124,12 +124,9 @@ def start(input_file, io_loop=None):
 
 
 def import_file(full_path_to_module):
-    module_dir, module_file = os.path.split(full_path_to_module)
-    module_name, module_ext = os.path.splitext(module_file)
-    sys.path.insert(0, module_dir)
-    module_obj = __import__(module_name)
-    module_obj.__file__ = full_path_to_module
-    for attr in dir(module_obj):
+    GLOBAL_DATA = {'__file__': full_path_to_module}
+    exec(compile(open(full_path_to_module).read(), '<MYCODE>', 'exec'), GLOBAL_DATA)
+    for attr in GLOBAL_DATA:
         if attr.startswith('__'):
             continue
-        ClientDataInterface.USER_DATA[attr] = getattr(module_obj, attr)
+        ClientDataInterface.USER_DATA[attr] = GLOBAL_DATA[attr]
