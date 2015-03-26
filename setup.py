@@ -7,12 +7,12 @@ requirements = [l.strip() for l in open(join(source_directory, 'requirements.txt
 
 setup(
     name='checkio_cli',
-    version='0.0.10',
+    version='0.0.11',
     description='CheckiO common line interface for run and debug mission',
     author='CheckiO',
     author_email='igor@checkio.org',
     url='https://github.com/CheckiO/checkio-cli',
-    download_url='https://github.com/CheckiO/checkio-cli/tarball/0.0.10',
+    download_url='https://github.com/CheckiO/checkio-cli/tarball/0.0.11',
     packages=find_packages(),
     entry_points={
         'console_scripts': ['checkio-cli = checkio_cli.cli:main'],

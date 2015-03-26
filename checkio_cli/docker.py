@@ -32,7 +32,7 @@ def get_docker_command():
 def start(mission, path=None):
     docker_client = DockerClient()
     if path:
-        docker_client.build_mission(mission, path)
+        docker_client.build_mission(mission, source_path=path)
         logging.info('Image has build')
 
     logging.info('Run docker:')
