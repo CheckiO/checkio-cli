@@ -6,6 +6,8 @@ from tornado.tcpserver import TCPServer
 
 from .packet import InPacket, OutPacket, PacketStructureError
 
+from checkio_cli import config
+
 PY3 = sys.version_info[0] == 3
 
 
@@ -57,8 +59,6 @@ class ClientDataInterface(object):
 
 
 class TCPConsoleServer(TCPServer):
-
-    PORT = 7878
 
     data_interface = ClientDataInterface
 
@@ -116,17 +116,8 @@ class StreamReader(object):
         self.write(OutPacket.METHOD_SELECT_RESULT, result, request_id=request_id)
 
 
-def start(input_file, io_loop=None):
-    import_file(input_file)
+def start(user_data, io_loop=None):
+    ClientDataInterface.USER_DATA.update(user_data)
     server = TCPConsoleServer(io_loop=io_loop)
     logging.info("Running tcp server")
-    server.listen(TCPConsoleServer.PORT)
-
-
-def import_file(full_path_to_module):
-    GLOBAL_DATA = {'__file__': full_path_to_module}
-    exec(compile(open(full_path_to_module).read(), '<MYCODE>', 'exec'), GLOBAL_DATA)
-    for attr in GLOBAL_DATA:
-        if attr.startswith('__'):
-            continue
-        ClientDataInterface.USER_DATA[attr] = GLOBAL_DATA[attr]
+    server.listen(config.CONSOLE_SERVER_PORT)
