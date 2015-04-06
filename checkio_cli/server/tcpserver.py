@@ -6,9 +6,11 @@ from tornado.tcpserver import TCPServer
 
 from .packet import InPacket, OutPacket, PacketStructureError
 
-from checkio_cli import config
+import config
 
 PY3 = sys.version_info[0] == 3
+
+INTERFACE = None
 
 
 class ClientDataInterface(object):
@@ -40,22 +42,22 @@ class ClientDataInterface(object):
         self._stream.write_select_result(result, request_id)
 
     def handler_stdout(self, line, request_id):
-        logging.info("checkio-cli server:: stdout: {}".format(line))
+        logging.debug("checkio-cli server:: stdout: {}".format(line))
 
     def handler_stderr(self, line, request_id):
-        logging.info("checkio-cli server:: stderr: {}".format(line))
+        logging.debug("checkio-cli server:: stderr: {}".format(line))
 
     def handler_result(self, data, request_id):
-        logging.info("checkio-cli server:: result: {}".format(data))
+        logging.debug("checkio-cli server:: result: {}".format(data))
 
     def handler_error(self, data, request_id):
-        logging.info("checkio-cli server:: error: {}".format(data))
+        logging.debug("checkio-cli server:: error: {}".format(data))
 
     def handler_status(self, data, request_id):
-        logging.info("checkio-cli server:: status: {}".format(data))
+        logging.debug("checkio-cli server:: status: {}".format(data))
 
     def handler_set(self, data, request_id):
-        logging.info("checkio-cli server:: set: {}".format(data))
+        logging.debug("checkio-cli server:: set: {}".format(data))
 
 
 class TCPConsoleServer(TCPServer):
@@ -81,7 +83,7 @@ class StreamReader(object):
 
     def _on_client_connection_close(self):
         self._is_connection_closed = True
-        logging.info("checkio-cli server:: Client disconnected {} ".format(self.address))
+        logging.debug("checkio-cli server:: Client disconnected {} ".format(self.address))
 
     def _read_data(self):
         self.stream.read_until(self.terminator, self._on_data)
@@ -107,7 +109,7 @@ class StreamReader(object):
 
         message = OutPacket(method, data, request_id).encode()
         try:
-            self.stream.write(message + self.terminator, callback=callback)
+            self.stream.write(message.encode('utf-8') + self.terminator, callback=callback)
             logging.debug("checkio-cli server:: write {}".format(message))
         except Exception as e:
             logging.error(e, exc_info=True)
@@ -116,7 +118,9 @@ class StreamReader(object):
         self.write(OutPacket.METHOD_SELECT_RESULT, result, request_id=request_id)
 
 
-def start(user_data, io_loop=None):
+def start(user_data, io_loop=None, interface=None):
+    global INTERFACE
+    INTERFACE = interface
     ClientDataInterface.USER_DATA.update(user_data)
     server = TCPConsoleServer(io_loop=io_loop)
     logging.info("Running tcp server")

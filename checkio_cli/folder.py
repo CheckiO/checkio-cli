@@ -1,6 +1,8 @@
 import os
+import yaml
 
 from checkio_cli import config
+from checkio_cli import aconfig
 
 
 def get_file_content(file_path):
@@ -23,7 +25,7 @@ class Folder(object):
         return os.path.join(config.MISSIONS_FOLDER, self.f_slug)
 
     def mission_config_path(self):
-        return os.path.join(config.MISSIONS_FOLDER, '.' + self.f_slug)
+        return os.path.join(config.MISSIONS_FOLDER, '.' + self.f_slug + '.yaml')
 
     def compiled_folder_path(self):
         return os.path.join(config.COMPILED_FOLDER, self.f_slug)
@@ -36,6 +38,9 @@ class Folder(object):
 
     def interface_cli_folder_path(self):
         return os.path.join(self.compiled_folder_path(), 'interfaces', 'checkio_cli')
+
+    def interface_cli_main(self):
+        return os.path.join(self.interface_cli_folder_path(), 'src', 'main.py')
 
     def interface_cli_requirements(self):
         return os.path.join(self.interface_cli_folder_path(), 'requirements.txt')
@@ -52,17 +57,17 @@ class Folder(object):
     def mission_config_read(self):
         return get_file_content(self.mission_config_path())
 
-    def mission_config_write(self, data):
+    def mission_config_write(self, source_data):
         fh = open(self.mission_config_path(), 'w')
-        fh.write(data['source_type'] + '\n' + data['source_url'])
+        yaml.dump({'source': source_data}, fh, default_flow_style=False)
         fh.close()
 
     def mission_config(self):
-        raw_data = self.mission_config_read().split()
-        return {
-            'source_type': raw_data[0],
-            'source_url': raw_data[1]
-        }
+        fh = open(self.mission_config_path())
+        try:
+            return yaml.load(fh)
+        finally:
+            fh.close()
 
     def init_file_path(self, interpreter):
         return os.path.join(self.compiled_folder_path(), 'initial', interpreter)
@@ -71,7 +76,7 @@ class Folder(object):
         return get_file_content(self.init_file_path(interpreter))
 
     def solution_path(self):
-        extension = config.INTERPRETERS[config.ACTIVE_INTERPRETER]['extension']
+        extension = config.INTERPRETERS[aconfig.INTERPRETER]['extension']
         return os.path.join(config.SOLUTIONS_FOLDER, self.f_slug + '.' + extension)
 
     def solution_code(self):

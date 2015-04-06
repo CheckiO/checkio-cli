@@ -1,4 +1,4 @@
-from folder import Folder
+from checkio_cli.folder import Folder
 
 INITIAL_TEMPLATE = '''#!/usr/bin/env checkio-cli
 # START-SYSNFO do not remove it
@@ -25,8 +25,8 @@ def write_solution(slug, interpreter, solution_path):
 
     solution_fh.write(INITIAL_TEMPLATE.format(
         mission_slug=slug,
-        source_type=config['source_type'],
-        source_url=config['source_url'],
+        source_type=config['source']['type'],
+        source_url=config['source']['url'],
         interpreter=interpreter,
         code=folder.initial_code(interpreter)
     ))

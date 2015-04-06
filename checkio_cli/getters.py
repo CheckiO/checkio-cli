@@ -28,8 +28,8 @@ def mission_git_getter(url, slug):
     except git.GitCommandError as e:
         raise Exception(u"{}, {}".format(e or '', e.stderr))
     folder.mission_config_write({
-        'source_type': 'git',
-        'source_url': url
+        'type': 'git',
+        'url': url
     })
     print('Prepare mission {} from {}'.format(slug, url))
 

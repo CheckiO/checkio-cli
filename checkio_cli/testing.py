@@ -8,7 +8,8 @@ from tornado.ioloop import IOLoop
 
 from checkio_docker.client import DockerClient
 from checkio_cli import config
-from checkio_cli.server import tcpserver
+from checkio_cli import aconfig
+#from checkio_cli.server import tcpserver
 from checkio_cli.folder import Folder
 
 
@@ -20,7 +21,7 @@ def start_native(path, python3):
     try:
         os.chdir(path)
         os.system(python3 + ' main.py 127.0.0.1 ' +
-                  str(config.CONSOLE_SERVER_PORT) + ' 1 2')
+                  str(config.CONSOLE_SERVER_PORT) + ' 1 2 ' + str(logging.root.level))
     finally:
         os.chdir('.')
 
@@ -31,7 +32,7 @@ def start_docker(slug):
     else:
         local_ip = socket.gethostbyname(socket.gethostname())
 
-    command = "{} {} 1 2".format(local_ip, config.CONSOLE_SERVER_PORT)
+    command = "{} {} 1 2 {}".format(local_ip, config.CONSOLE_SERVER_PORT, str(logging.root.level))
     docker_client = DockerClient()
     docker_container = docker_client.run(slug, command)
     for line in docker_container.logs(stream=True, logs=True):
@@ -54,22 +55,24 @@ def start_server(user_data):
     tcpserver.start(user_data, io_loop)
     io_loop.start()
 
+def start_server(slug, server_script, action, path_to_code, python3, env_name=None):
+    os.system(' '.join((python3, server_script, slug, action, env_name, path_to_code, str(config.CONSOLE_SERVER_PORT),
+              str(logging.root.level))))
+
+
 
 def check_home(slug, interpreter, without_container):
     # TODO: killing server after words
     folder = Folder(slug)
     pid_child = os.fork()
-    if pid_child:
+    if not pid_child:
         if without_container:
             start_native(folder.referee_folder_path(), folder.native_env_bin('python3'))
         else:
             start_docker(slug)
     else:
-        start_server({
-            'action': 'check',
-            'code': folder.solution_code(),
-            'env_name': interpreter or config.ACTIVE_INTERPRETER
-        })
+        start_server(slug, folder.interface_cli_main(), 'check', folder.solution_path(), folder.native_env_bin('python3'),
+                     interpreter or aconfig.INTERPRETER)
 
 
 def run_home(mission, interpreter, without_container):
