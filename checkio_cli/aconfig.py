@@ -13,5 +13,13 @@ MISSION = user_config.get('mission')
 import aconfig
 set_value = conf.setter(aconfig)
 
+
+def set_mi(mission, interpreter):
+    set_value('mission', mission)
+    set_value('interpreter', interpreter)
+
 if INTERPRETER not in config.INTERPRETERS:
-    raise conf.ConfigVerificationException(CONFIG_FILE, 'interpreter', 'A wrong interpreter slug was choosen')
+    raise conf.ConfigVerificationException(CONFIG_FILE, 'interpreter',
+                                           'A wrong interpreter slug was choosen')
+
+# TOTHINK:  Should we validate MISSION? What is user removed a mission folder?

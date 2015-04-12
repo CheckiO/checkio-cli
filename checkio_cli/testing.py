@@ -3,13 +3,13 @@ import os
 import signal
 import logging
 import socket
+from distutils.dir_util import copy_tree
 
 from tornado.ioloop import IOLoop
 
 from checkio_docker.client import DockerClient
 from checkio_cli import config
 from checkio_cli import aconfig
-#from checkio_cli.server import tcpserver
 from checkio_cli.folder import Folder
 
 
@@ -34,7 +34,12 @@ def start_docker(slug):
 
     command = "{} {} 1 2 {}".format(local_ip, config.CONSOLE_SERVER_PORT, str(logging.root.level))
     docker_client = DockerClient()
-    docker_container = docker_client.run(slug, command)
+    folder = Folder(slug)
+    copy_tree(folder.verification_folder_path(), folder.container_verification_folder_path())
+    docker_container = docker_client.run(slug, command, volumes={
+        '/opt/mission/src': folder.compiled_referee_folder_path(),
+        '/opt/mission/envs': folder.compiled_envs_folder_path()
+    })
     for line in docker_container.logs(stream=True, logs=True):
         try:
             logging.info(line)
@@ -43,36 +48,46 @@ def start_docker(slug):
             pass
 
 
-def start_server(user_data):
-    def exit_signal(sig, frame):
-        logging.info("Trying exit")
-        io_loop.add_callback(IOLoop.instance().stop)
-
-    signal.signal(signal.SIGINT, exit_signal)
-    signal.signal(signal.SIGTERM, exit_signal)
-
-    io_loop = IOLoop.instance()
-    tcpserver.start(user_data, io_loop)
-    io_loop.start()
-
 def start_server(slug, server_script, action, path_to_code, python3, env_name=None):
-    os.system(' '.join((python3, server_script, slug, action, env_name, path_to_code, str(config.CONSOLE_SERVER_PORT),
-              str(logging.root.level))))
+    os.system(' '.join((python3, server_script, slug, action, env_name, path_to_code,
+              str(config.CONSOLE_SERVER_PORT), str(logging.root.level))))
 
 
-
-def check_home(slug, interpreter, without_container):
+def execute_referee(command, slug, interpreter, without_container=False, interface_child=False,
+                    referee_only=False, interface_only=False):
     # TODO: killing server after words
+    def start_interface():
+        return start_server(slug, folder.interface_cli_main(), command, folder.solution_path(),
+                            folder.native_env_bin('python3'), interpreter or aconfig.INTERPRETER)
+
+    def start_container():
+        return start_docker(slug)
+
+    def start_local():
+        return start_native(folder.referee_folder_path(), folder.native_env_bin('python3'))
+
     folder = Folder(slug)
-    pid_child = os.fork()
-    if not pid_child:
+    if interface_only:
+        return start_interface()
+
+    if referee_only:
         if without_container:
-            start_native(folder.referee_folder_path(), folder.native_env_bin('python3'))
+            return start_local()
         else:
-            start_docker(slug)
+            return start_container
+
+    pid_child = os.fork()
+    start_interface_first = bool(pid_child)
+    if interface_child:
+        start_interface_first = not start_interface_first
+
+    if start_interface_first:
+        return start_interface()
     else:
-        start_server(slug, folder.interface_cli_main(), 'check', folder.solution_path(), folder.native_env_bin('python3'),
-                     interpreter or aconfig.INTERPRETER)
+        if without_container:
+            return start_local()
+        else:
+            return start_container()
 
 
 def run_home(mission, interpreter, without_container):

@@ -21,10 +21,14 @@ SOURCE_FOLDER = os.path.join(FOLDER, 'sources')
 MISSIONS_FOLDER = user_config.get('missions_folder', os.path.join(SOURCE_FOLDER, 'missions'))
 # for collected version with original
 COMPILED_FOLDER = os.path.join(SOURCE_FOLDER, 'compiled')
+# compailed folder contains same data but with resolved links
+CONTAINER_COMPILED_FOLDER = os.path.join(SOURCE_FOLDER, 'container_compiled')
 # for collecting native mosules
 NATIVE_ENV_FOLDER = os.path.join(SOURCE_FOLDER, 'native')
 
 SOLUTIONS_FOLDER = user_config.get('solutions_folder', os.path.join(FOLDER, 'solutions'))
+# MD files that will be used in first user solution as well as initial user
+INIT_DESCRIPTION = user_config.get('init_description', ['description', 'format_io'])
 
 # Native run
 NATIVE_PYTHON3 = 'python3'

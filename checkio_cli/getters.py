@@ -1,6 +1,7 @@
 import os
 import git
 import shutil
+from distutils.dir_util import copy_tree
 
 from checkio_cli import config
 from checkio_docker.parser import MissionFilesCompiler
@@ -38,6 +39,7 @@ MISSION_GETTERS = {
     'git': mission_git_getter
 }
 
+
 def rebuild_native(slug):
     folder = Folder(slug)
     if os.path.exists(folder.native_env_folder_path()):
@@ -57,7 +59,8 @@ def rebuild_native(slug):
 def rebuild_mission(slug):
     folder = Folder(slug)
     docker = DockerClient()
-    docker.build(name_image=folder.image_name(), path=folder.verification_folder_path())
+    copy_tree(folder.verification_folder_path(), folder.container_verification_folder_path())
+    docker.build(name_image=folder.image_name(), path=folder.container_verification_folder_path())
 
 
 def recompile_mission(slug):
@@ -67,4 +70,4 @@ def recompile_mission(slug):
         shutil.rmtree(compiled_path)
 
     mission_source = MissionFilesCompiler(compiled_path)
-    mission_source.compile(source_path=folder.mission_folder())
+    mission_source.compile(source_path=folder.mission_folder(), use_link=True)

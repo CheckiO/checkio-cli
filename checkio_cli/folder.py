@@ -18,6 +18,9 @@ class Folder(object):
         self.u_slug = slug
         self.f_slug = slug.replace('-', '_')
 
+    def exists(self):
+        return os.path.exists(self.mission_folder())
+
     def image_name(self):
         return 'checkio/' + self.u_slug
 
@@ -30,8 +33,14 @@ class Folder(object):
     def compiled_folder_path(self):
         return os.path.join(config.COMPILED_FOLDER, self.f_slug)
 
+    def container_compiled_folder_path(self):
+        return os.path.join(config.CONTAINER_COMPILED_FOLDER, self.f_slug)
+
     def verification_folder_path(self):
         return os.path.join(self.compiled_folder_path(), 'verification')
+
+    def container_verification_folder_path(self):
+        return os.path.join(self.container_compiled_folder_path(), 'verification')
 
     def referee_requirements(self):
         return os.path.join(self.verification_folder_path(), 'requirements.txt')
@@ -48,6 +57,15 @@ class Folder(object):
     def referee_folder_path(self):
         return os.path.join(self.verification_folder_path(), 'src')
 
+    def envs_folder_path(self):
+        return os.path.join(self.verification_folder_path(), 'envs')
+
+    def compiled_referee_folder_path(self):
+        return os.path.join(self.container_verification_folder_path(), 'src')
+
+    def compiled_envs_folder_path(self):
+        return os.path.join(self.container_verification_folder_path(), 'envs')
+
     def native_env_folder_path(self):
         return os.path.join(config.NATIVE_ENV_FOLDER, self.f_slug)
 
@@ -56,6 +74,12 @@ class Folder(object):
 
     def mission_config_read(self):
         return get_file_content(self.mission_config_path())
+
+    def compiled_info_folder_path(self):
+        return os.path.join(self.compiled_folder_path(), 'info')
+
+    def compiled_info_file_content(self, file_name):
+        return get_file_content(os.path.join(self.compiled_info_folder_path(), file_name))
 
     def mission_config_write(self, source_data):
         fh = open(self.mission_config_path(), 'w')
