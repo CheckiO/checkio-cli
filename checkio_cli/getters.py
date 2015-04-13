@@ -35,11 +35,6 @@ def mission_git_getter(url, slug):
     print('Prepare mission {} from {}'.format(slug, url))
 
 
-MISSION_GETTERS = {
-    'git': mission_git_getter
-}
-
-
 def rebuild_native(slug):
     folder = Folder(slug)
     if os.path.exists(folder.native_env_folder_path()):

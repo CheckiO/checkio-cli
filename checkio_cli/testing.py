@@ -58,7 +58,7 @@ def execute_referee(command, slug, interpreter, without_container=False, interfa
     # TODO: killing server after words
     def start_interface():
         return start_server(slug, folder.interface_cli_main(), command, folder.solution_path(),
-                            folder.native_env_bin('python3'), interpreter or aconfig.INTERPRETER)
+                            folder.native_env_bin('python3'), interpreter)
 
     def start_container():
         return start_docker(slug)

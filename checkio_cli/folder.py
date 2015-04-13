@@ -15,6 +15,7 @@ def get_file_content(file_path):
 
 class Folder(object):
     def __init__(self, slug):
+        assert slug, 'incorect slug parameter for Folder'
         self.u_slug = slug
         self.f_slug = slug.replace('-', '_')
 

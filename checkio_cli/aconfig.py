@@ -14,12 +14,25 @@ import aconfig
 set_value = conf.setter(aconfig)
 
 
-def set_mi(mission, interpreter):
-    set_value('mission', mission)
-    set_value('interpreter', interpreter)
+def set_mi(mission=None, interpreter=None):
+    if mission:
+        set_value('mission', mission)
+    else:
+        mission = MISSION
+
+    if interpreter:
+        set_value('interpreter', interpreter)
+    else:
+        interpreter = INTERPRETER
+
+    return mission, interpreter
 
 if INTERPRETER not in config.INTERPRETERS:
     raise conf.ConfigVerificationException(CONFIG_FILE, 'interpreter',
                                            'A wrong interpreter slug was choosen')
 
-# TOTHINK:  Should we validate MISSION? What is user removed a mission folder?
+if MISSION is not None:
+    mission_folder = os.path.join(config.MISSIONS_FOLDER, MISSION.replace('-', '_'))
+    if not os.path.exists(mission_folder):
+        raise conf.ConfigVerificationException(CONFIG_FILE, 'interpreter',
+                                               'A wrong mission name')

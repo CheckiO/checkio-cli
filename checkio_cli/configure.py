@@ -1,5 +1,5 @@
-import os
 import yaml
+
 
 class ConfigVerificationException(Exception):
     def __init__(self, file_path, name, description):
@@ -14,6 +14,7 @@ class ConfigVerificationException(Exception):
             description=self.description
         )
 
+
 def read_config(file_path):
     try:
         fh = open(file_path)
@@ -23,6 +24,7 @@ def read_config(file_path):
         return yaml.load(fh)
     finally:
         fh.close()
+
 
 def set_value(config, conf_name, answer):
     if config.user_config.get(conf_name) == answer:
@@ -42,10 +44,12 @@ def set_value(config, conf_name, answer):
         write_config(config.CONFIG_FILE, config.user_config)
         raise
 
+
 def setter(config):
     def _set_value(name, value):
         set_value(config, name, value)
     return _set_value
+
 
 def write_config(file_path, config):
     fh = open(file_path, 'w')
@@ -64,19 +68,19 @@ def interactive_configuration_process():
             print('Error: ' + e.description)
             return ask(config, question, default, conf_name)
 
+    print('Welcome to CheckiO Client Configuration')
 
-
-
-    print('Welcome to CheckiO Client')
-    
     # can't be imported globaly because of recursive import
     import config
     import aconfig
     print('Configuration data will be stored in two files {} and {}'
           .format(config.CONFIG_FILE, aconfig.CONFIG_FILE))
     config = ask(config, 'Choose a main folder for CheckiO', config.FOLDER, 'main_folder')
-    config = ask(config, 'Choose a folder for mission sources', config.MISSIONS_FOLDER, 'missions_folder')
-    config = ask(config, 'Choose a folder for your solutios', config.SOLUTIONS_FOLDER, 'solutions_folder')
+    config = ask(config, 'Choose a folder for mission sources'
+                         '(can be usefull for missions author)', config.MISSIONS_FOLDER,
+                         'missions_folder')
+    config = ask(config, 'Choose a folder for your solutios', config.SOLUTIONS_FOLDER,
+                         'solutions_folder')
 
     available_interpreters = ','.join(config.INTERPRETERS.keys())
     aconfig = ask(aconfig, 'Choose a current interpreter (' + available_interpreters + ')',
