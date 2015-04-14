@@ -3,7 +3,6 @@ import git
 import shutil
 from distutils.dir_util import copy_tree
 
-from checkio_cli import config
 from checkio_docker.parser import MissionFilesCompiler
 from checkio_cli.folder import Folder
 from checkio_docker.client import DockerClient
@@ -25,7 +24,7 @@ def mission_git_getter(url, slug):
         else:
             return
     try:
-        repo = git.Repo.clone_from(url, destination_path)
+        git.Repo.clone_from(url, destination_path)
     except git.GitCommandError as e:
         raise Exception(u"{}, {}".format(e or '', e.stderr))
     folder.mission_config_write({

@@ -1,15 +1,11 @@
 import sys
 import os
-import signal
 import logging
 import socket
 from distutils.dir_util import copy_tree
 
-from tornado.ioloop import IOLoop
-
 from checkio_docker.client import DockerClient
 from checkio_cli import config
-from checkio_cli import aconfig
 from checkio_cli.folder import Folder
 
 

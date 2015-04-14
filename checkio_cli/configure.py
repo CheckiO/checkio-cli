@@ -86,4 +86,3 @@ def interactive_configuration_process():
     aconfig = ask(aconfig, 'Choose a current interpreter (' + available_interpreters + ')',
                   aconfig.INTERPRETER, 'interpreter')
     print(config.FOLDER)
-    
