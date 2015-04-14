@@ -1,0 +1,2 @@
+def checkio(data):
+    return data

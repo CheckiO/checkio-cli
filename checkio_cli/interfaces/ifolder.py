@@ -4,7 +4,8 @@ from checkio_cli import config
 from checkio_cli import aconfig
 from checkio_cli.configure import interactive_configuration_process
 from checkio_cli.getters import mission_git_getter, rebuild_mission, recompile_mission,\
-    rebuild_native
+    rebuild_native, make_mission_from_template, mission_git_init, TemplateWasntFound,\
+    MissionFolderExistsAlready
 
 from checkio_cli.initial import init_path_file, init_home_file
 from checkio_cli.testing import execute_referee
@@ -140,8 +141,56 @@ def use_run(parser):
     _use_referee(parser, 'run')
 
 
+def use_create_mission(parser):
+    parser.add_argument('mission')
+    parser.add_argument('origin', nargs=OPTIONAL)
+    parser.add_argument('--template', nargs=OPTIONAL, default='simpleio')
+    parser.add_argument('--without-container', action='store_true', default=False,
+                        help='start process without using container')
+
+    def run(options):
+        try:
+            make_mission_from_template(options.mission, options.template)
+        except TemplateWasntFound as e:
+            print(e)
+            return
+        except MissionFolderExistsAlready as e:
+            print(e)
+            answer = raw_input('Would you like to remove this folder? y/n').strip().lower()
+            if answer == 'n':
+                return
+            if answer in ['', 'y']:
+                make_mission_from_template(options.mission, options.template, force_remove=True)
+
+        if options.origin:
+            mission_git_init(options.mission, options.origin)
+
+        recompile_mission(options.mission)
+        if not options.without_container:
+            rebuild_mission(options.mission)
+        init_home_file(options.mission, aconfig.INTERPRETER)
+        rebuild_native(options.mission)
+        aconfig.set_value('mission', options.mission)
+
+    parser.set_defaults(func=run)
+
+
+def use_git_link_mission(parser):
+    parser.add_argument('mission')
+    parser.add_argument('origin')
+
+    def run(options):
+        mission_git_init(options.mission, options.origin)
+        aconfig.set_value('mission', options.mission)
+
+    parser.set_defaults(func=run)
+
+
 def use(parser):
     subparsers = parser.add_subparsers()
+    use_create_mission(subparsers.add_parser('create-mission', help='Create mission folder'))
+    use_git_link_mission(subparsers.add_parser('git-link-mission', help='Link a mission folder with'
+                                                                      ' git repository'))
     use_config(subparsers.add_parser('config', help='Configure working folder'))
     use_active(subparsers.add_parser('active', help='Activate mission and interpreter'))
 

@@ -4,6 +4,7 @@ import checkio_cli.configure as conf
 USER_HOME = os.path.expanduser('~')
 CONFIG_FILE = os.path.join(USER_HOME, '.checkio_cli.yaml')
 ACTIVE_CONFIG_FILE = os.path.join(USER_HOME, '.active_checkio_cli.yaml')
+CLI_FOLDER = os.path.dirname(__file__)
 
 user_config = conf.read_config(CONFIG_FILE)
 
@@ -32,6 +33,10 @@ INIT_DESCRIPTION = user_config.get('init_description', ['description', 'format_i
 
 # Native run
 NATIVE_PYTHON3 = 'python3'
+
+TEMPLATES_FOLDERS = [os.path.join(CLI_FOLDER, 'templates')]
+if 'templates' in user_config:
+    TEMPLATES_FOLDERS = user_config['templates'] + TEMPLATES_FOLDERS
 
 
 INTERPRETERS = {

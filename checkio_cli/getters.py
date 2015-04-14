@@ -2,10 +2,96 @@ import os
 import git
 import shutil
 from distutils.dir_util import copy_tree
+import logging
 
 from checkio_docker.parser import MissionFilesCompiler
 from checkio_cli.folder import Folder
 from checkio_docker.client import DockerClient
+from checkio_cli.folder import Folder
+from checkio_cli import config
+
+
+class GetterExeption(Exception):
+    pass
+
+
+class TemplateWasntFound(GetterExeption):
+    def __init__(self, template, folders):
+        self.template = template
+        self.folders = folders
+
+    def __str__(self):
+        return 'Template "{}"" wasn\'t found in folder(s) "{}"'.format(
+            self.template, '","'.join(self.folders)
+        )
+
+
+class MissionFolderExistsAlready(GetterExeption):
+    def __init__(self, folder):
+        self.folder = folder
+
+    def __str__(self):
+        return 'Mission folder "{}" exists already'.format(self.folder)
+
+
+def make_mission_from_template(mission, template, force_remove=False):
+    template_full_path = None
+    for template_folder in config.TEMPLATES_FOLDERS:
+        template_full_path = os.path.join(template_folder, template)
+        if os.path.exists(template_full_path):
+            break
+        else:
+            template_full_path = None
+
+    if template_full_path is None:
+        raise TemplateWasntFound(template, config.TEMPLATES_FOLDER)
+
+    folder = Folder(mission)
+    mission_folder = folder.mission_folder()
+    if os.path.exists(mission_folder):
+        if force_remove:
+            shutil.rmtree(mission_folder)
+        else:
+            raise MissionFolderExistsAlready(mission_folder)
+
+    os.mkdir(mission_folder)
+
+    from distutils.dir_util import copy_tree
+    copy_tree(os.path.join(template_full_path, 'source'), mission_folder)
+
+    GG = {}
+    exec open(os.path.join(template_full_path, 'run.py')).read() in GG
+    GG['run'](mission)
+
+    folder.mission_config_write({
+        'type': 'local',
+        'url': mission_folder
+    })
+
+
+def mission_git_init(mission, original_url):
+    folder = Folder(mission)
+    mission_folder = folder.mission_folder()
+    logging.info('Init git repository for folder %s', mission_folder)
+    repo = git.Repo.init(mission_folder)
+    for root, dirs, files in os.walk(mission_folder):
+        if root.endswith('.git') or '/.git/' in root:
+            continue
+
+        for file_name in files:
+            abs_file_name = os.path.join(root, file_name)
+            logging.debug('add file to local git repository %s', abs_file_name)
+            repo.index.add([abs_file_name])
+
+    repo.index.commit("initial commit")
+    origin = repo.create_remote('origin', original_url)
+    origin.push(repo.refs)
+    origin.fetch()
+    repo.create_head('master', origin.refs.master).set_tracking_branch(origin.refs.master)
+    folder.mission_config_write({
+        'type': 'git',
+        'url': original_url
+    })
 
 
 def mission_git_getter(url, slug):
