@@ -189,8 +189,10 @@ def use_git_link_mission(parser):
 def use(parser):
     subparsers = parser.add_subparsers()
     use_create_mission(subparsers.add_parser('create-mission', help='Create mission folder'))
-    use_git_link_mission(subparsers.add_parser('git-link-mission', help='Link a mission folder with'
-                                                                      ' git repository'))
+    use_git_link_mission(subparsers.add_parser('git-link-mission',
+                                               help='Link a mission folder with'
+                                                    ' git repository'))
+
     use_config(subparsers.add_parser('config', help='Configure working folder'))
     use_active(subparsers.add_parser('active', help='Activate mission and interpreter'))
 

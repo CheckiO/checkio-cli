@@ -139,8 +139,12 @@ def rebuild_native(slug):
 def rebuild_mission(slug):
     folder = Folder(slug)
     docker = DockerClient()
-    copy_tree(folder.verification_folder_path(), folder.container_verification_folder_path())
-    docker.build(name_image=folder.image_name(), path=folder.container_verification_folder_path())
+    verification_folder_path = folder.container_verification_folder_path()
+    if os.path.exists(verification_folder_path):
+        shutil.rmtree(verification_folder_path)
+
+    copy_tree(folder.verification_folder_path(), verification_folder_path)
+    docker.build(name_image=folder.image_name(), path=verification_folder_path)
 
 
 def recompile_mission(slug):

@@ -12,11 +12,6 @@ user_config = conf.read_config(CONFIG_FILE)
 # because this is the first variable that will be writen
 FOLDER = user_config.get('main_folder', os.path.join(USER_HOME, 'checkio'))
 
-if not user_config:
-    conf.interactive_configuration_process()
-    user_config = conf.read_config(CONFIG_FILE)
-active_user_config = conf.read_config(ACTIVE_CONFIG_FILE)
-
 SOURCE_FOLDER = os.path.join(FOLDER, 'sources')
 # for original mission repository
 MISSIONS_FOLDER = user_config.get('missions_folder', os.path.join(SOURCE_FOLDER, 'missions'))
@@ -51,3 +46,15 @@ CONSOLE_SERVER_PORT = 7878
 
 import config
 set_value = conf.setter(config)
+
+if user_config:
+    for folder_name in (FOLDER, SOURCE_FOLDER, MISSIONS_FOLDER, COMPILED_FOLDER,
+                        CONTAINER_COMPILED_FOLDER, NATIVE_ENV_FOLDER,
+                        SOLUTIONS_FOLDER):
+        if not os.path.exists(folder_name):
+            os.mkdir(folder_name)
+else:
+    conf.interactive_configuration_process()
+    # TODO: reimport the whole config file
+    import sys
+    sys.exit(0)
