@@ -1,4 +1,4 @@
-## Commands
+## Commands for testing solution
 
 ### active 
 
@@ -31,7 +31,7 @@ Interpreter: python_2
 
 is changing both, mission and envieroument
 
-## get-git
+### get-git
 
 download a new mission from git repository
 
@@ -47,7 +47,7 @@ $ checkio-cli get-git https://github.com/Checkio-Game-Missions/checkio-empire-st
 5. Build a native envieroument for refery and checkio_cli interface
 6. set this mission as a currently active
 
-## run and check
+### run and check
 
 both commands run and check have the same interface
 
@@ -76,6 +76,103 @@ INCOMPLETE
 ```
 
 check by using local envieroument for referee not a docker container. For simple mission it works faster and for mission creation process it is an easier way to debug a referee
+
+## Commands for creation mission
+
+### create-mission
+
+```Shell
+$ checkio-cli create-mission summi
+Congratulation!!!
+You have new mission created with slug summi
+
+```
+
+create a simple mission from __template__ "simpleio" and do all the steps than git-get is doing in order to preate a mission for checking on your local computer
+
+```Shell
+$ checkio-cli create-mission summi  --without-container
+
+```
+
+creates mission without container
+
+```Shell
+$ checkio-cli create-mission summi --template=newone
+Template "newone"" wasn't found in folder(s) "/media/sf_host/www/checkio/mission-design/checkio-cli/checkio_cli/templates"
+
+```
+
+creates a mission by using not a default template "simpleio" but "newone".
+
+Addition folders for searching a mission template can be added in checkio_cli.yaml _templates_
+
+```Shell
+$ checkio-cli create-mission summi git@github.com:oduvan/checkio-summi.git
+
+```
+
+creates a mission and push it on git repository
+
+### git-link-mission
+
+a git repository can be added after creating mission
+
+```Shell
+$ checkio-cli create-mission summi  --without-container
+$ checkio-cli git-link-mission summi git@github.com:oduvan/checkio-summi.git
+
+```
+
+### compile-mission
+
+if new files was added during process of creation of new mission recompilation should be done
+
+```Shell
+$ checkio-cli compile-mission summi
+
+```
+
+it also rebuild a netive envieroument
+
+### build-native-env
+
+if requirements for docker or for checkio_cli interface was changed and native envieroument is using it should be rebuild
+
+```Shell
+$ checkio-cli build-native-env summi
+
+```
+
+### build-mission
+
+if docker is testing insted of native env and requirements for referee or requirements for any executer were changed rebuildig docker image should be done
+
+OR if you get a mission without docker and decided to start use it now
+
+```Shell
+$ checkio-cli build-mission summi
+
+```
+
+### init
+
+creates a file with an initial code
+
+```Shell
+$ checkio-cli init summi
+
+```
+
+creates a file in _solutions_foilder_
+
+```Shell
+$ checkio-cli init sumi /tmp/summi.py
+
+```
+
+creates a file with initial code not in _solutions_foilder_ folder but in passed path
+
 
 ## Config
 
