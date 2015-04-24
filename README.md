@@ -40,7 +40,7 @@ $ checkio-cli get-git https://github.com/Checkio-Game-Missions/checkio-empire-st
 
 ```
 
-1. checkout a mission into your _missions_folder_ 
+1. checkout a mission into your _missions_folder_ . If folder for this mission is exist already user will be asked about remove this folder first
 2. collect all sources in one folder from all parents
 3. build a docker image if parameter --wihtout-container wasn't added
 4. add a solution file for current interpreter in _solutions_folder_
