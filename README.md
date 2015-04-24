@@ -31,6 +31,22 @@ Interpreter: python_2
 
 is changing both, mission and envieroument
 
+## get-git
+
+download a new mission from git repository
+
+```Shell
+$ checkio-cli get-git https://github.com/Checkio-Game-Missions/checkio-empire-striped-words striped-words
+
+```
+
+1. checkout a mission into your _missions_folder_ 
+2. collect all sources in one folder from all parents
+3. build a docker image if parameter --wihtout-container wasn't added
+4. add a solution file for current interpreter in _solutions_folder_
+5. Build a native envieroument for refery and checkio_cli interface
+6. set this mission as a currently active
+
 ## Config
 
 ```Shell
