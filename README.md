@@ -47,6 +47,36 @@ $ checkio-cli get-git https://github.com/Checkio-Game-Missions/checkio-empire-st
 5. Build a native envieroument for refery and checkio_cli interface
 6. set this mission as a currently active
 
+## run and check
+
+both commands run and check have the same interface
+
+```Shell
+$ checkio-cli check striped-words
+TEST: striped_words(My name is ...)
+INCOMPLETE
+
+```
+
+checks mission striped-words using a solution from folder _solutions_folder_
+
+```Shell
+$ checkio-cli check
+TEST: striped_words(My name is ...)
+INCOMPLETE
+```
+
+checks a currently active mission.
+
+```Shell
+$ checkio-cli check --without-container
+TEST: striped_words(My name is ...)
+INCOMPLETE
+
+```
+
+check by using local envieroument for referee not a docker container. For simple mission it works faster and for mission creation process it is an easier way to debug a referee
+
 ## Config
 
 ```Shell
