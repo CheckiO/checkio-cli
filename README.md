@@ -173,6 +173,20 @@ $ checkio-cli init sumi /tmp/summi.py
 
 creates a file with initial code not in _solutions_foilder_ folder but in passed path
 
+after creation such a file it can be runned by
+
+```Shell
+$ /tmp/summi.py
+
+```
+
+and tested by
+
+```Shell
+$ /tmp/summi.py --check
+$ /tmp/summi.py --check --without-container
+
+```
 
 ## Config
 
