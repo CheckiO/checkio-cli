@@ -44,7 +44,7 @@ def make_mission_from_template(mission, template, force_remove=False):
             template_full_path = None
 
     if template_full_path is None:
-        raise TemplateWasntFound(template, config.TEMPLATES_FOLDER)
+        raise TemplateWasntFound(template, config.TEMPLATES_FOLDERS)
 
     folder = Folder(mission)
     mission_folder = folder.mission_folder()
