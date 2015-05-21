@@ -36,7 +36,8 @@ if 'templates' in user_config:
 
 INTERPRETERS = {
     'python_3': {'extension': 'py'},
-    'python_2': {'extension': 'py'}
+    'python_2': {'extension': 'py'},
+    'js_node': {'extension': 'js'}
 }
 
 DOCKER_LINUX_IP = '172.17.42.1'

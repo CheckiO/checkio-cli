@@ -111,7 +111,7 @@ def use_init(parser):
     parser.set_defaults(func=run)
 
 
-def _use_referee(parser, command):
+def use_referee(parser, command):
     parser.add_argument('mission', nargs=OPTIONAL, default=aconfig.MISSION)
     parser.add_argument('interpreter', nargs=OPTIONAL, default=aconfig.INTERPRETER)
     parser.add_argument('--without-container', action='store_true', default=False,
@@ -131,14 +131,6 @@ def _use_referee(parser, command):
                         interface_only=options.interface_only,
                         referee_only=options.referee_only)
     parser.set_defaults(func=run)
-
-
-def use_check(parser):
-    _use_referee(parser, 'check')
-
-
-def use_run(parser):
-    _use_referee(parser, 'run')
 
 
 def use_create_mission(parser):
@@ -205,8 +197,9 @@ def use(parser):
                                                help='Prepare a ENV for natove run'))
 
     use_init(subparsers.add_parser('init', help='Initial code'))
-    use_check(subparsers.add_parser('check', help='Check a solution from home folder'))
-    use_run(subparsers.add_parser('run', help='Run a code from a solution file'))
+    for name in ('run', 'check', 'battle'):
+        use_referee(subparsers.add_parser(name, help='{} a solution from home folder'.format(name)),
+                    name)
     parser.add_argument('--logging', action='store_true', default=False,
                         help='Input file this data for task')
     return parser

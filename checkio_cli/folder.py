@@ -80,7 +80,10 @@ class Folder(object):
         return os.path.join(self.compiled_folder_path(), 'info')
 
     def compiled_info_file_content(self, file_name):
-        return get_file_content(os.path.join(self.compiled_info_folder_path(), file_name))
+        try:
+            return get_file_content(os.path.join(self.compiled_info_folder_path(), file_name))
+        except IOError:
+            return ''
 
     def mission_config_write(self, source_data):
         fh = open(self.mission_config_path(), 'w')
