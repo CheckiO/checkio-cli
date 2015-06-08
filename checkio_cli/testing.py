@@ -2,6 +2,8 @@ import sys
 import os
 import logging
 import socket
+import time
+import tempfile
 from distutils.dir_util import copy_tree
 
 from checkio_docker.client import DockerClient
@@ -44,17 +46,18 @@ def start_docker(slug):
             pass
 
 
-def start_server(slug, server_script, action, path_to_code, python3, env_name=None):
+def start_server(slug, server_script, action, path_to_code, python3, env_name=None,
+                 tmp_file_name=None):
     os.system(' '.join((python3, server_script, slug, action, env_name, path_to_code,
-              str(config.CONSOLE_SERVER_PORT), str(logging.root.level))))
+              str(config.CONSOLE_SERVER_PORT), str(logging.root.level), tmp_file_name or '-')))
 
 
 def execute_referee(command, slug, interpreter, without_container=False, interface_child=False,
                     referee_only=False, interface_only=False):
     # TODO: killing server after words
-    def start_interface():
+    def start_interface(tmp_file_name=None):
         return start_server(slug, folder.interface_cli_main(), command, folder.solution_path(),
-                            folder.native_env_bin('python3'), interpreter)
+                            folder.native_env_bin('python3'), interpreter, tmp_file_name)
 
     def start_container():
         return start_docker(slug)
@@ -72,14 +75,18 @@ def execute_referee(command, slug, interpreter, without_container=False, interfa
         else:
             return start_container
 
+    (_, tmp_file_name) = tempfile.mkstemp()
     pid_child = os.fork()
     start_interface_first = bool(pid_child)
     if interface_child:
         start_interface_first = not start_interface_first
 
     if start_interface_first:
-        return start_interface()
+        return start_interface(tmp_file_name)
     else:
+        while os.path.exists(tmp_file_name):
+            time.sleep(1)  # give  more time to start interface first
+
         if without_container:
             return start_local()
         else:
