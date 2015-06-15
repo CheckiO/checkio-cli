@@ -1,4 +1,8 @@
 import yaml
+try:
+    from importlib import reload
+except ImportError:
+    pass
 
 from checkio_cli.config.exceptions import ConfigVerificationException
 

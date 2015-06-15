@@ -1,7 +1,7 @@
 from argparse import OPTIONAL
 
 from checkio_cli.config import settings, tools
-from checkio_cli.configure import interactive_configuration_process
+from checkio_cli.config.initial_config import console_interactive
 from checkio_cli.getters import mission_git_getter, rebuild_mission, recompile_mission,\
     rebuild_native, make_mission_from_template, mission_git_init, TemplateWasntFound,\
     MissionFolderExistsAlready
@@ -16,7 +16,7 @@ def use_config(parser):
 
     def run(options):
         if not options.name:
-            return interactive_configuration_process()
+            return console_interactive()
 
         if options.value:
             tools.set_value(options.name, options.value)
