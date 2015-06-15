@@ -3,7 +3,7 @@ import os
 import stat
 
 from checkio_cli.folder import Folder
-from checkio_cli import config
+from checkio_cli.config import settings
 
 INITIAL_LINE = '#!/usr/bin/env checkio-cli'
 COMMENT_PREFIX = '# '
@@ -58,7 +58,7 @@ def write_solution(slug, interpreter, solution_path):
     fh.write(COMMENT_PREFIX + LABEL_END_SYS_INFO + '\n')
 
     fh.write('\n')
-    for file_name in config.INIT_DESCRIPTION:
+    for file_name in settings.INIT_DESCRIPTION:
         for line in folder.compiled_info_file_content(file_name + '.md').split('\n'):
             if line.strip():
                 fh.write(COMMENT_PREFIX + line + '\n')

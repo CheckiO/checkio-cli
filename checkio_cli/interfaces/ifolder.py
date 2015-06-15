@@ -1,7 +1,6 @@
 from argparse import OPTIONAL
 
-from checkio_cli import config
-from checkio_cli import aconfig
+from checkio_cli.config import settings, tools
 from checkio_cli.configure import interactive_configuration_process
 from checkio_cli.getters import mission_git_getter, rebuild_mission, recompile_mission,\
     rebuild_native, make_mission_from_template, mission_git_init, TemplateWasntFound,\
@@ -20,9 +19,9 @@ def use_config(parser):
             return interactive_configuration_process()
 
         if options.value:
-            config.set_value(options.name, options.value)
+            tools.set_value(options.name, options.value)
         else:
-            value = config.get_value(options.name)
+            value = settings.get_value(options.name)
             print("Value is {}".format(value))
 
     parser.set_defaults(func=run)
@@ -35,12 +34,12 @@ def use_active(parser):
     def run(options):
         if options.mission is None:
             print('Mission: {}\nInterpreter: {}'.format(
-                aconfig.MISSION, aconfig.INTERPRETER
+                settings.MISSION, settings.INTERPRETER
             ))
         if options.mission != '-':
-            aconfig.set_value('mission', options.mission)
+            tools.set_value('mission', options.mission)
         if options.interpreter:
-            aconfig.set_value('interpreter', options.interpreter)
+            tools.set_value('interpreter', options.interpreter)
 
     parser.set_defaults(func=run)
 
@@ -57,9 +56,9 @@ def use_get_git(parser):
         recompile_mission(options.mission)
         if not options.without_container:
             rebuild_mission(options.mission)
-        init_home_file(options.mission, aconfig.INTERPRETER)
+        init_home_file(options.mission, settings.INTERPRETER)
         rebuild_native(options.mission)
-        aconfig.set_value('mission', options.mission)
+        tools.set_value('mission', options.mission)
     parser.set_defaults(func=run)
 
 
@@ -68,7 +67,7 @@ def use_compile_mission(parser):
 
     def run(options):
         if options.mission:
-            aconfig.set_value('mission', options.mission)
+            tools.set_value('mission', options.mission)
         recompile_mission(options.mission)
         rebuild_native(options.mission)
     parser.set_defaults(func=run)
@@ -79,7 +78,7 @@ def use_build_mission(parser):
 
     def run(options):
         if options.mission:
-            aconfig.set_value('mission', options.mission)
+            tools.set_value('mission', options.mission)
         rebuild_mission(options.mission)
     parser.set_defaults(func=run)
 
@@ -89,7 +88,7 @@ def use_build_native_env(parser):
 
     def run(options):
         if options.mission:
-            aconfig.set_value('mission', options.mission)
+            tools.set_value('mission', options.mission)
         rebuild_native(options.mission)
     parser.set_defaults(func=run)
 
@@ -101,19 +100,19 @@ def use_init(parser):
 
     def run(options):
         if options.filename is None:
-            return init_home_file(aconfig.MISSION, aconfig.INTERPRETER)
+            return init_home_file(settings.MISSION, settings.INTERPRETER)
         if '.' in options.filename:
-            mission, interpreter = aconfig.set_mi(options.mission, options.interpreter)
+            mission, interpreter = tools.set_mi(options.mission, options.interpreter)
             return init_path_file(options.filename, mission, interpreter)
         # --------------------mission-slug, ----interpreter-name
-        mission, interpreter = aconfig.set_mi(options.filename, options.mission)
+        mission, interpreter = tools.set_mi(options.filename, options.mission)
         return init_home_file(mission, interpreter)
     parser.set_defaults(func=run)
 
 
 def use_referee(parser, command):
-    parser.add_argument('mission', nargs=OPTIONAL, default=aconfig.MISSION)
-    parser.add_argument('interpreter', nargs=OPTIONAL, default=aconfig.INTERPRETER)
+    parser.add_argument('mission', nargs=OPTIONAL, default=settings.MISSION)
+    parser.add_argument('interpreter', nargs=OPTIONAL, default=settings.INTERPRETER)
     parser.add_argument('--without-container', action='store_true', default=False,
                         help='start process without using container')
     parser.add_argument('--interface-child', action='store_true', default=False,
@@ -124,7 +123,7 @@ def use_referee(parser, command):
                         help='out of two preocesses run interface only')
 
     def run(options, command=command):
-        mission, interpreter = aconfig.set_mi(options.mission, options.interpreter)
+        mission, interpreter = tools.set_mi(options.mission, options.interpreter)
         execute_referee(command, mission, interpreter,
                         without_container=options.without_container,
                         interface_child=options.interface_child,
@@ -160,9 +159,9 @@ def use_create_mission(parser):
         recompile_mission(options.mission)
         if not options.without_container:
             rebuild_mission(options.mission)
-        init_home_file(options.mission, aconfig.INTERPRETER)
+        init_home_file(options.mission, settings.INTERPRETER)
         rebuild_native(options.mission)
-        aconfig.set_value('mission', options.mission)
+        tools.set_value('mission', options.mission)
 
     parser.set_defaults(func=run)
 
@@ -173,7 +172,7 @@ def use_git_link_mission(parser):
 
     def run(options):
         mission_git_init(options.mission, options.origin)
-        aconfig.set_value('mission', options.mission)
+        tools.set_value('mission', options.mission)
 
     parser.set_defaults(func=run)
 

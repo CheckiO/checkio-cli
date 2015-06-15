@@ -1,12 +1,17 @@
 import os
-import checkio_cli.configure as conf
+from checkio_cli.config import tools
+from checkio_cli.config.exceptions import ConfigVerificationException
 
 USER_HOME = os.path.expanduser('~')
 CONFIG_FILE = os.path.join(USER_HOME, '.checkio_cli.yaml')
-ACTIVE_CONFIG_FILE = os.path.join(USER_HOME, '.active_checkio_cli.yaml')
 CLI_FOLDER = os.path.dirname(__file__)
 
-user_config = conf.read_config(CONFIG_FILE)
+user_config = tools.read_config(CONFIG_FILE)
+
+IS_CONFIGURED = bool(user_config)
+
+INTERPRETER = user_config.get('interpreter', 'python_3')
+MISSION = user_config.get('mission')
 
 # The FOLDER settings should go before start of first interactive configuration process
 # because this is the first variable that will be writen
@@ -43,19 +48,21 @@ INTERPRETERS = {
 DOCKER_LINUX_IP = '172.17.42.1'
 CONSOLE_SERVER_PORT = 7878
 
-# TODO: default parameter for a parameter --without-container
+## VERIFICATION
 
-import config
-set_value = conf.setter(config)
+if INTERPRETER not in INTERPRETERS:
+    raise ConfigVerificationException(CONFIG_FILE, 'interpreter',
+                                      'A wrong interpreter slug was choosen')
 
-if user_config:
+if MISSION is not None:
+    mission_folder = os.path.join(MISSIONS_FOLDER, MISSION.replace('-', '_'))
+    if not os.path.exists(mission_folder):
+        raise ConfigVerificationException(CONFIG_FILE, 'interpreter',
+                                          'A wrong mission name')
+
+if IS_CONFIGURED:
     for folder_name in (FOLDER, SOURCE_FOLDER, MISSIONS_FOLDER, COMPILED_FOLDER,
                         CONTAINER_COMPILED_FOLDER, NATIVE_ENV_FOLDER,
                         SOLUTIONS_FOLDER):
         if not os.path.exists(folder_name):
             os.mkdir(folder_name)
-else:
-    conf.interactive_configuration_process()
-    # TODO: reimport the whole config file
-    import sys
-    sys.exit(0)
