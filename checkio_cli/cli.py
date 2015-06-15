@@ -7,13 +7,19 @@ parser = argparse.ArgumentParser(description='Command line interface for CheckiO
 parser.add_argument('-v', dest='verbose', default=2, type=int,
                     help='Scripts verbose level')
 
+# start configuration process at the first start
+from checkio_cli.config import settings
+if not settings.IS_CONFIGURED:
+    from checkio_cli.config.initial_config import console_interactive
+    console_interactive()
+
 # there are three kinds of command line interfaces.
 
 if len(sys.argv) >= 2 and '.' in sys.argv[1]:
     # the first one is for working with solution file
     # through the direct call like ./solutin.py
     from checkio_cli.interfaces.ifile import use
-elif sys.argv[1] == 'mgit':
+elif len(sys.argv) >= 2 and sys.argv[1] == 'mgit':
     # the second one is for mission authors
     # so they can get access to missions git repository from any place
     # checkio-cli git crystal-row status

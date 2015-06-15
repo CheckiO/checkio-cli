@@ -1,5 +1,6 @@
 import os
 import git
+import re
 import shutil
 from distutils.dir_util import copy_tree
 import logging
@@ -7,8 +8,10 @@ import logging
 from checkio_docker.parser import MissionFilesCompiler
 from checkio_cli.folder import Folder
 from checkio_docker.client import DockerClient
-from checkio_cli.folder import Folder
-from checkio_cli import config
+from checkio_cli.config import settings
+
+
+RE_REPO_BRANCH = re.compile('(.+?)\@([\w\-\_]+)$')
 
 
 class GetterExeption(Exception):
@@ -36,7 +39,7 @@ class MissionFolderExistsAlready(GetterExeption):
 
 def make_mission_from_template(mission, template, force_remove=False):
     template_full_path = None
-    for template_folder in config.TEMPLATES_FOLDERS:
+    for template_folder in settings.TEMPLATES_FOLDERS:
         template_full_path = os.path.join(template_folder, template)
         if os.path.exists(template_full_path):
             break
@@ -44,7 +47,7 @@ def make_mission_from_template(mission, template, force_remove=False):
             template_full_path = None
 
     if template_full_path is None:
-        raise TemplateWasntFound(template, config.TEMPLATES_FOLDERS)
+        raise TemplateWasntFound(template, settings.TEMPLATES_FOLDERS)
 
     folder = Folder(mission)
     mission_folder = folder.mission_folder()
@@ -60,7 +63,7 @@ def make_mission_from_template(mission, template, force_remove=False):
     copy_tree(os.path.join(template_full_path, 'source'), mission_folder)
 
     GG = {}
-    exec open(os.path.join(template_full_path, 'run.py')).read() in GG
+    exec(open(os.path.join(template_full_path, 'run.py')).read()) in GG
     GG['run'](mission)
 
     folder.mission_config_write({
@@ -109,8 +112,16 @@ def mission_git_getter(url, slug):
             shutil.rmtree(destination_path)
         else:
             return
+
+    re_ret = re.search(RE_REPO_BRANCH, url)
+    if re_ret:
+        checkout_url, branch = re_ret.groups()
+    else:
+        checkout_url = url
+        branch = 'master'
+
     try:
-        git.Repo.clone_from(url, destination_path)
+        git.Repo.clone_from(checkout_url, destination_path, branch=branch)
     except git.GitCommandError as e:
         raise Exception(u"{}, {}".format(e or '', e.stderr))
     folder.mission_config_write({

@@ -7,7 +7,7 @@ import tempfile
 from distutils.dir_util import copy_tree
 
 from checkio_docker.client import DockerClient
-from checkio_cli import config
+from checkio_cli.config import settings
 from checkio_cli.folder import Folder
 
 
@@ -19,18 +19,18 @@ def start_native(path, python3):
     try:
         os.chdir(path)
         os.system(python3 + ' main.py 127.0.0.1 ' +
-                  str(config.CONSOLE_SERVER_PORT) + ' 1 2 ' + str(logging.root.level))
+                  str(settings.CONSOLE_SERVER_PORT) + ' 1 2 ' + str(logging.root.level))
     finally:
         os.chdir('.')
 
 
 def start_docker(slug):
     if is_linux():
-        local_ip = config.DOCKER_LINUX_IP
+        local_ip = settings.DOCKER_LINUX_IP
     else:
         local_ip = socket.gethostbyname(socket.gethostname())
 
-    command = "{} {} 1 2 {}".format(local_ip, config.CONSOLE_SERVER_PORT, str(logging.root.level))
+    command = "{} {} 1 2 {}".format(local_ip, settings.CONSOLE_SERVER_PORT, str(logging.root.level))
     docker_client = DockerClient()
     folder = Folder(slug)
     copy_tree(folder.verification_folder_path(), folder.container_verification_folder_path())
@@ -49,7 +49,7 @@ def start_docker(slug):
 def start_server(slug, server_script, action, path_to_code, python3, env_name=None,
                  tmp_file_name=None):
     os.system(' '.join((python3, server_script, slug, action, env_name, path_to_code,
-              str(config.CONSOLE_SERVER_PORT), str(logging.root.level), tmp_file_name or '-')))
+              str(settings.CONSOLE_SERVER_PORT), str(logging.root.level), tmp_file_name or '-')))
 
 
 def execute_referee(command, slug, interpreter, without_container=False, interface_child=False,

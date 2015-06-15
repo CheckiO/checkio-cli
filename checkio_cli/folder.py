@@ -1,8 +1,7 @@
 import os
 import yaml
 
-from checkio_cli import config
-from checkio_cli import aconfig
+from checkio_cli.config import settings
 
 
 def get_file_content(file_path):
@@ -26,16 +25,16 @@ class Folder(object):
         return 'checkio/' + self.u_slug
 
     def mission_folder(self):
-        return os.path.join(config.MISSIONS_FOLDER, self.f_slug)
+        return os.path.join(settings.MISSIONS_FOLDER, self.f_slug)
 
     def mission_config_path(self):
-        return os.path.join(config.MISSIONS_FOLDER, '.' + self.f_slug + '.yaml')
+        return os.path.join(self.mission_folder(), '.checkio_cli.yaml')
 
     def compiled_folder_path(self):
-        return os.path.join(config.COMPILED_FOLDER, self.f_slug)
+        return os.path.join(settings.COMPILED_FOLDER, self.f_slug)
 
     def container_compiled_folder_path(self):
-        return os.path.join(config.CONTAINER_COMPILED_FOLDER, self.f_slug)
+        return os.path.join(settings.CONTAINER_COMPILED_FOLDER, self.f_slug)
 
     def verification_folder_path(self):
         return os.path.join(self.compiled_folder_path(), 'verification')
@@ -68,7 +67,7 @@ class Folder(object):
         return os.path.join(self.container_verification_folder_path(), 'envs')
 
     def native_env_folder_path(self):
-        return os.path.join(config.NATIVE_ENV_FOLDER, self.f_slug)
+        return os.path.join(settings.NATIVE_ENV_FOLDER, self.f_slug)
 
     def native_env_bin(self, call):
         return os.path.join(self.native_env_folder_path(), 'bin', call)
@@ -104,8 +103,8 @@ class Folder(object):
         return get_file_content(self.init_file_path(interpreter))
 
     def solution_path(self):
-        extension = config.INTERPRETERS[aconfig.INTERPRETER]['extension']
-        return os.path.join(config.SOLUTIONS_FOLDER, self.f_slug + '.' + extension)
+        extension = settings.INTERPRETERS[settings.INTERPRETER]['extension']
+        return os.path.join(settings.SOLUTIONS_FOLDER, self.f_slug + '.' + extension)
 
     def solution_code(self):
         return get_file_content(self.solution_path())
