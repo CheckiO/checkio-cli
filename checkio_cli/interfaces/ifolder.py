@@ -1,3 +1,4 @@
+import sys
 from argparse import OPTIONAL
 
 from checkio_cli.config import settings, tools
@@ -8,6 +9,10 @@ from checkio_cli.getters import mission_git_getter, rebuild_mission, recompile_m
 
 from checkio_cli.initial import init_path_file, init_home_file
 from checkio_cli.testing import execute_referee
+
+PY3 = sys.version_info[0] == 3
+if PY3:
+    raw_input = input
 
 
 def use_config(parser):

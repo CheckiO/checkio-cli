@@ -1,4 +1,5 @@
 import os
+import sys
 import git
 import re
 import shutil
@@ -9,6 +10,10 @@ from checkio_docker.parser import MissionFilesCompiler
 from checkio_cli.folder import Folder
 from checkio_docker.client import DockerClient
 from checkio_cli.config import settings
+
+PY3 = sys.version_info[0] == 3
+if PY3:
+    raw_input = input
 
 
 RE_REPO_BRANCH = re.compile('(.+?)\@([\w\-\_]+)$')

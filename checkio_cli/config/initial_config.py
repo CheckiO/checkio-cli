@@ -1,5 +1,12 @@
+import sys
+
 from checkio_cli.config.exceptions import ConfigVerificationException
 from checkio_cli.config.tools import set_value
+
+PY3 = sys.version_info[0] == 3
+if PY3:
+    raw_input = input
+
 
 def ask(question, default, conf_name):
     answer = raw_input(question + ' [' + default + ']: ')
