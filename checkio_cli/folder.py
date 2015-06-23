@@ -96,8 +96,14 @@ class Folder(object):
         finally:
             fh.close()
 
+    def init_folder_path(self):
+        return os.path.join(self.compiled_folder_path(), 'initial')
+
+    def init_available_list(self):
+        return os.listdir(self.init_folder_path())
+
     def init_file_path(self, interpreter):
-        return os.path.join(self.compiled_folder_path(), 'initial', interpreter)
+        return os.path.join(self.init_folder_path(), interpreter)
 
     def initial_code(self, interpreter):
         return get_file_content(self.init_file_path(interpreter))

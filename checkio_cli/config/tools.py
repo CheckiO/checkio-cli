@@ -1,4 +1,6 @@
 import yaml
+import logging
+
 try:
     from importlib import reload
 except ImportError:
@@ -18,7 +20,7 @@ def read_config(file_path):
         fh.close()
 
 
-def set_value(conf_name, answer):
+def set_value(conf_name, answer, do_raise=True):
     from checkio_cli.config import settings
     if settings.user_config.get(conf_name) == answer:
         return settings
@@ -29,24 +31,28 @@ def set_value(conf_name, answer):
     write_config(settings.CONFIG_FILE, settings.user_config)
     try:
         return reload(settings)
-    except ConfigVerificationException:
+    except ConfigVerificationException as e:
         if prev_answer is None:
             settings.user_config.pop(conf_name)
         else:
             settings.user_config[conf_name] = prev_answer
         write_config(settings.CONFIG_FILE, settings.user_config)
-        raise
+        if do_raise:
+            raise
+        else:
+            logging.error(e.description)
+            return None
 
 
-def set_mi(mission=None, interpreter=None):
+def set_mi(mission=None, interpreter=None, do_raise=True):
     from checkio_cli.config import settings
     if mission:
-        set_value('mission', mission)
+        set_value('mission', mission, do_raise=do_raise)
     else:
         mission = settings.MISSION
 
     if interpreter:
-        set_value('interpreter', interpreter)
+        set_value('interpreter', interpreter, do_raise=do_raise)
     else:
         interpreter = settings.INTERPRETER
 
