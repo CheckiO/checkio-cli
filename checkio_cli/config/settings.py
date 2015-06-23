@@ -40,10 +40,23 @@ if 'templates' in user_config:
 
 
 INTERPRETERS = {
-    'python_3': {'extension': 'py'},
-    'python_2': {'extension': 'py'},
-    'js_node': {'extension': 'js'}
+    'python_3': {
+        'extension': 'py',
+        'inline_comment': '#'
+    },
+    'python_2': {
+        'extension': 'py',
+        'inline_comment': '#'
+    },
+    'js_node': {
+        'extension': 'js',
+        'inline_comment': '//'
+    }
 }
+
+EXTENSTIONS = {}
+for i_name, i_data in INTERPRETERS.items():
+    EXTENSTIONS[i_data['extension']] = i_name
 
 DOCKER_LINUX_IP = '172.17.42.1'
 CONSOLE_SERVER_PORT = 7878
