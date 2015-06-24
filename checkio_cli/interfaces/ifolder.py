@@ -41,6 +41,7 @@ def use_active(parser):
             print('Mission: {}\nInterpreter: {}'.format(
                 settings.MISSION, settings.INTERPRETER
             ))
+            return
         if options.mission != '-':
             tools.set_value('mission', options.mission)
         if options.interpreter:
