@@ -17,10 +17,13 @@ def is_linux():
 
 def start_native(path, python3):
     try:
+        logging.debug("CHDIR %s", path)
         os.chdir(path)
-        os.system(python3 + ' main.py 127.0.0.1 ' +
-                  str(settings.CONSOLE_SERVER_PORT) + ' 1 2 ' + str(logging.root.level))
+        command = (python3 + ' main.py 127.0.0.1 ' +
+                   str(settings.CONSOLE_SERVER_PORT) + ' 1 2 ' + str(logging.root.level))
+        os.system(command)
     finally:
+        logging.debug("CHDIR .")
         os.chdir('.')
 
 

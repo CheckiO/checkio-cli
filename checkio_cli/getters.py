@@ -88,7 +88,7 @@ def mission_git_init(mission, original_url):
 
         for file_name in files:
             abs_file_name = os.path.join(root, file_name)
-            logging.debug('add file to local git repository %s', abs_file_name)
+            logging.debug('Add file to local git repository %s', abs_file_name)
             repo.index.add([abs_file_name])
 
     repo.index.commit("initial commit")
@@ -110,6 +110,9 @@ def mission_git_getter(url, slug):
     folder = Folder(slug)
     destination_path = folder.mission_folder()
 
+    logging.info('Getting a new mission through the git...')
+    logging.info('from %s to %s', url, destination_path)
+
     if os.path.exists(destination_path):
         answer = raw_input('Folder {} exists already.'
                            ' Do you want to overwite it? [y]/n :'.format(destination_path))
@@ -125,6 +128,8 @@ def mission_git_getter(url, slug):
         checkout_url = url
         branch = 'master'
 
+    logging.debug('URL info: checkioout url:%s branch:%s', url, branch)
+
     try:
         git.Repo.clone_from(checkout_url, destination_path, branch=branch)
     except git.GitCommandError as e:
@@ -136,17 +141,23 @@ def mission_git_getter(url, slug):
     print('Prepare mission {} from {}'.format(slug, url))
 
 
+def logging_sys(command):
+    logging.debug('Sys: %s', command)
+    os.system(command)
+
+
 def rebuild_native(slug):
     folder = Folder(slug)
+    logging.info('Building virtualenv in %s', folder.native_env_folder_path())
     if os.path.exists(folder.native_env_folder_path()):
         shutil.rmtree(folder.native_env_folder_path())
 
-    os.system("virtualenv --system-site-packages -p python3 " + folder.native_env_folder_path())
-    os.system("{pip3} install -r {requirements}".format(
+    logging_sys("virtualenv --system-site-packages -p python3 " + folder.native_env_folder_path())
+    logging_sys("{pip3} install -r {requirements}".format(
         pip3=folder.native_env_bin('pip3'),
         requirements=folder.referee_requirements()
     ))
-    os.system("{pip3} install -r {requirements}".format(
+    logging_sys("{pip3} install -r {requirements}".format(
         pip3=folder.native_env_bin('pip3'),
         requirements=folder.interface_cli_requirements()
     ))
@@ -156,6 +167,7 @@ def rebuild_mission(slug):
     folder = Folder(slug)
     docker = DockerClient()
     verification_folder_path = folder.container_verification_folder_path()
+    logging.info("Build docker image %s from %s", folder.image_name(), verification_folder_path)
     if os.path.exists(verification_folder_path):
         shutil.rmtree(verification_folder_path)
 
@@ -166,6 +178,7 @@ def rebuild_mission(slug):
 def recompile_mission(slug):
     folder = Folder(slug)
     compiled_path = folder.compiled_folder_path()
+    logging.info("Relink folder to %s", compiled_path)
     if os.path.exists(compiled_path):
         shutil.rmtree(compiled_path)
 

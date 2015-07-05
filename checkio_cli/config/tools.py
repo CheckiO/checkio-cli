@@ -15,7 +15,10 @@ def read_config(file_path):
     except IOError:
         return {}
     try:
-        return yaml.load(fh)
+        conf_obj = yaml.load(fh)
+        if not conf_obj:
+            return {}
+        return conf_obj
     finally:
         fh.close()
 

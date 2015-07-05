@@ -1,4 +1,6 @@
 import os
+import logging
+
 from checkio_cli.config import tools
 from checkio_cli.config.exceptions import ConfigVerificationException
 
@@ -61,8 +63,6 @@ for i_name, i_data in INTERPRETERS.items():
 DOCKER_LINUX_IP = '172.17.42.1'
 CONSOLE_SERVER_PORT = 7878
 
-## VERIFICATION
-
 if INTERPRETER not in INTERPRETERS:
     raise ConfigVerificationException(CONFIG_FILE, 'interpreter',
                                       'A wrong interpreter slug was choosen')
@@ -73,9 +73,26 @@ if MISSION is not None:
         raise ConfigVerificationException(CONFIG_FILE, 'interpreter',
                                           'A wrong mission name')
 
+FOLDERS_INITIALS = (
+    ('main_folder', FOLDER),
+    ('sources', SOURCE_FOLDER),
+    ('missions_folder', MISSIONS_FOLDER),
+    ('compiled', COMPILED_FOLDER),
+    ('container_compiled', CONTAINER_COMPILED_FOLDER),
+    ('native', NATIVE_ENV_FOLDER),
+    ('solutions_folder', SOLUTIONS_FOLDER)
+)
+
 if IS_CONFIGURED:
-    for folder_name in (FOLDER, SOURCE_FOLDER, MISSIONS_FOLDER, COMPILED_FOLDER,
-                        CONTAINER_COMPILED_FOLDER, NATIVE_ENV_FOLDER,
-                        SOLUTIONS_FOLDER):
-        if not os.path.exists(folder_name):
+    for conf_name, folder_name in FOLDERS_INITIALS:
+        if os.path.exists(folder_name) and os.path.isdir(folder_name):
+            continue
+        try:
+            logging.info('Create directory %s', folder_name)
             os.mkdir(folder_name)
+        except OSError as e:
+            err = 'OS Error: {err}. Folder {fold}'.format(
+                err=e.args[1],
+                fold=folder_name
+            )
+            raise ConfigVerificationException(CONFIG_FILE, conf_name, err)

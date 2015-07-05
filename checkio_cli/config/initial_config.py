@@ -9,7 +9,7 @@ if PY3:
 
 
 def ask(question, default, conf_name):
-    answer = raw_input(question + ' [' + default + ']: ')
+    answer = raw_input(question + u' [' + default + u']: ')
     if not answer:
         answer = default
     try:
@@ -23,8 +23,8 @@ def console_interactive():
     from checkio_cli.config import settings
     print('Welcome to CheckiO Client Configuration')
 
-    print('Configuration data will be stored in two files {} and {}'
-          .format(settings.CONFIG_FILE, settings.CONFIG_FILE))
+    print('Configuration data will be stored in file {}'
+          .format(settings.CONFIG_FILE))
     settings = ask('Choose a main folder for CheckiO', settings.FOLDER, 'main_folder')
     settings = ask('Choose a folder for mission sources'
                    '(can be usefull for missions author)', settings.MISSIONS_FOLDER,
@@ -35,4 +35,3 @@ def console_interactive():
     available_interpreters = ','.join(settings.INTERPRETERS.keys())
     settings = ask('Choose a current interpreter (' + available_interpreters + ')',
                    settings.INTERPRETER, 'interpreter')
-    print(settings.FOLDER)

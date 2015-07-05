@@ -35,4 +35,12 @@ def main():
     if use(parser):
         options = parser.parse_args()
         logging.basicConfig(level=LEVELS[options.verbose])
-        options.func(options)
+        try:
+            options.func(options)
+        except AttributeError as e:
+            if e.args != ("'Namespace' object has no attribute 'func'",):
+                raise
+            print("Welcome to CheckiO Client.\n")
+            print("Solutions folder {}".format(settings.SOLUTIONS_FOLDER))
+
+            print("Start with \n\n$ checkio-cli help\n")

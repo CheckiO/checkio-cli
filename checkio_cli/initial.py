@@ -68,6 +68,7 @@ def init_home_file(slug, interpreter):
 
 
 def write_solution(slug, interpreter, solution_path):
+    logging.info("Write a solution into %s for %s %s", solution_path, slug, interpreter)
     folder = Folder(slug)
     mission_config = folder.mission_config()
     comment_prefix = settings.INTERPRETERS[interpreter]['inline_comment']
