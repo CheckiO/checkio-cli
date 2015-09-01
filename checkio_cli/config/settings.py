@@ -6,7 +6,7 @@ from checkio_cli.config.exceptions import ConfigVerificationException
 
 USER_HOME = os.path.expanduser('~')
 CONFIG_FILE = os.path.join(USER_HOME, '.checkio_cli.yaml')
-CLI_FOLDER = os.path.dirname(__file__)
+CLI_FOLDER = os.path.dirname(os.path.dirname(__file__))
 
 user_config = tools.read_config(CONFIG_FILE)
 
@@ -40,6 +40,8 @@ TEMPLATES_FOLDERS = [os.path.join(CLI_FOLDER, 'templates')]
 if 'templates' in user_config:
     TEMPLATES_FOLDERS = user_config['templates'] + TEMPLATES_FOLDERS
 
+#import ipdb
+#ipdb.set_trace()
 
 INTERPRETERS = {
     'python_3': {

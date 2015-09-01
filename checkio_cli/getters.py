@@ -68,7 +68,7 @@ def make_mission_from_template(mission, template, force_remove=False):
     copy_tree(os.path.join(template_full_path, 'source'), mission_folder)
 
     GG = {}
-    exec(open(os.path.join(template_full_path, 'run.py')).read()) in GG
+    exec(open(os.path.join(template_full_path, 'run.py')).read(), GG)
     GG['run'](mission)
 
     folder.mission_config_write({

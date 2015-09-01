@@ -43,4 +43,4 @@ def main():
             print("Welcome to CheckiO Client.\n")
             print("Solutions folder {}".format(settings.SOLUTIONS_FOLDER))
 
-            print("Start with \n\n$ checkio-cli help\n")
+            print("Start with \n\n$ checkio-cli -h\n")
