@@ -62,7 +62,7 @@ EXTENSTIONS = {}
 for i_name, i_data in INTERPRETERS.items():
     EXTENSTIONS[i_data['extension']] = i_name
 
-DOCKER_LINUX_IP = '172.17.42.1'
+DOCKER_LINUX_IP = '172.17.0.1'
 CONSOLE_SERVER_PORT = 7878
 
 if INTERPRETER not in INTERPRETERS:
