@@ -36,7 +36,14 @@ def start_docker(slug):
     command = "{} {} 1 2 {}".format(local_ip, settings.CONSOLE_SERVER_PORT, str(logging.root.level))
     docker_client = DockerClient()
     folder = Folder(slug)
+
     copy_tree(folder.verification_folder_path(), folder.container_verification_folder_path())
+    for root, dirs, files in os.walk(folder.container_verification_folder_path()):
+        for momo in dirs:
+            os.chmod(os.path.join(root, momo), 0o777)
+        for momo in files:
+            os.chmod(os.path.join(root, momo), 0o777)
+
     docker_container = docker_client.run(slug, command, volumes={
         '/opt/mission/src': folder.compiled_referee_folder_path(),
         '/opt/mission/envs': folder.compiled_envs_folder_path()
