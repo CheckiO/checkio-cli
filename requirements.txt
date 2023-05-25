@@ -1,6 +1,6 @@
 GitPython==0.3.5
 coloredlogs==0.8
-tornado==4.1
+tornado==6.3.2
 checkio_docker>=0.0.19
 PyYAML
 future
